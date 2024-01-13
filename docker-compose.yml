@@ -1,0 +1,50 @@
+version: "3"
+
+services:
+  db:
+    image: postgres:14.9
+    container_name: db-app
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: crudtest
+    volumes:
+      - .volumens/postgres:/var/lib/postgresql/data/
+    ports:
+      - "5454:5432"
+    networks:
+      - crudtest-network
+  cache:
+    image: redis:7.0
+    container_name: redis-app
+    command: [ "redis-server", "--appendonly", "yes" ]  # Habilita la persistencia de datos
+    restart: always
+    volumes:
+      - .volumens/redis-data:/data  # Monta un volumen para persistir los datos
+    ports:
+      - "6363:6379"
+    networks:
+      - crudtest-network
+  app:
+    build:
+      dockerfile: Dockerfile
+    container_name: crudtest-app
+    restart: always
+    env_file: back.env
+    expose:
+      - "8000"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/src
+    depends_on:
+      - db
+      - cache
+    networks:
+      - crudtest-network
+networks:
+  crudtest-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
