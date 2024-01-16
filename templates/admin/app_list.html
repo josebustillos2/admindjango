@@ -1,38 +1,44 @@
 {% load i18n %}
-
+{% load static %}
+{% load list_menu %}
 {% if app_list %}
     <ul class="menu-inner py-1">
         {% for app in app_list %}
-            <li class="menu-item">
-                <a href="{{ app.app_url }}" class="menu-link menu-toggle"
+        {% get_name_app request as name_app %}
+        <li class="menu-item {% if app.app_label == name_app %}active open{% endif %}">
+            <a href="{{ app.app_url }}" class="menu-link menu-toggle"
                    title="{% blocktranslate with name=app.name %}Models in the {{ name }} application{% endblocktranslate %}">
-                    <i class="{{ app.icon }}  menu-icon tf-icons "></i>
-                    <div data-i18n="Layouts">   {{ app.name }}</div>
-                </a>
-                <ul class="menu-sub">
+                <img class="app-image bx bx-dock-top" width="30" height="30"
+                     src="{% static 'images/icon/model/'|add:app.icon|add:'.png'|default:'images/icon/model/' %}">
+                <div data-i18n="Layouts">{{ app.name }}</div>
+            </a>
+
+            <ul class="menu-sub">
+                                                        {% get_name_model request as name_model %}
+
                     {% for model in app.models %}
+
                         <li class="menu-item model-
                                 {{ model.object_name|lower }}{% if model.admin_url in request.path|urlencode %}
-                        current-model{% endif %}">
-                        <span class="sidebar-link d-flex  align-middle ">
+                        current-model{% endif %}  {% if model.object_name|lower == name_model %}active {% endif %}">
+<!--                        <span class="sidebar-link d-flex  align-middle ">-->
                             {% if model.admin_url %}
                                 <th scope="row"><a href="{{ model.admin_url }}" class="menu-link"
                                         {% if model.admin_url in request.path|urlencode %}
                                                    aria-current="page"{% endif %}>{{ model.name }}</a>
                                 </th>
                             {% else %}
-                                <th scope="row">{{ model.name }}</th>
+                                <th scope="row">  {{ model.name }}</th>
                             {% endif %}
-
-                            {% if model.add_url %}
-                                <a href="{{ model.add_url }}" class="addlink">
-                                    <span class="">
-                                    {% translate 'Add' %}
-                                    </span></a>
-                            {% else %}
-                                <td></td>
-                            {% endif %}
-                        </span>
+<!--                            {% if model.add_url %}-->
+                            <!--                                <a href="{{ model.add_url }}" class="addlink">-->
+                            <!--                                    <span class="">-->
+                            <!--                                    {% translate 'Add' %}-->
+                            <!--                                    </span></a>-->
+                            <!--                            {% else %}-->
+                            <!--                                <td></td>-->
+                            <!--                            {% endif %}-->
+<!--                        </span>-->
 
                             {% if model.admin_url and show_changelinks %}
                                 {% if model.view_only %}
@@ -47,14 +53,10 @@
                         </li>
                     {% endfor %}
                 </ul>
-            </li>
 
-            {#            <li class="menu-item">#}
-            {#                <a href="{{ app.app_url }}" class="section"#}
-            {#                   title="{% blocktranslate with name=app.name %}Models in the {{ name }} application{% endblocktranslate %}">#}
-            {#                    <i class="{{ app.icon }}"></i>#}
-            {#                    {{ app.name }}</a>#}
-            {#            </li>#}
+        </li>
+
+
         {% endfor %}
     </ul>
 
